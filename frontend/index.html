@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>CAD Order Form</title>
+    <style>
+        #results {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+            border-radius: 8px;
+            font-family: Arial, sans-scrif;
+        }
+
+        pre {
+            background: #eee;
+            padding: 10px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+
+        h3,
+        h4 {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Submit a CAD Order</h2>
+
+    <form action="http://127.0.0.1:8000/upload" method="post" enctype="multipart/form-data">
+
+        <label>Description:</label><br>
+        <input type="text" name="description" required><br><br>
+
+        <label>Dimensions:</label><br>
+        <input type="text" name="dimensions" required><br><br>
+
+        <label>Software:</label><br>
+        <input type="text" name="software" required><br><br>
+
+        <label>Email (optional):</label><br>
+        <input type="email" name="customer_email"><br><br>
+
+        <label>Upload File (optional):</label><br>
+        <input type="file" name="file"><br><br>
+
+        <button type="submit">Submit Order</button>
+    </form>
+
+    <div id="results"></div>
+
+</body>
+
+</html>
+
+<script>
+    document.querySelector("form").addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(event.target);
+
+        document.getElementById("results").innerHTML = "<p>Processing your request...</p>";
+
+        const response = await fetch("http://127.0.0.1:8000/upload", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        document.getElementById("results").innerHTML = `
+        <h3>Order Submitted</h3>
+
+        <p><strong>Geometry Type:</strong> ${data.geometry_type}</p>
+        <p><strong>Feasible:</strong> ${data.feasible}</p>
+
+        <h4>AI Geometry Plan</h4>
+        <pre>${JSON.stringify(data.ai_geometry_plan, null, 2)}</pre>
+
+        <h4>AI Feature Plan</h4>
+        <pre>${JSON.stringify(data.ai_feature_plan, null, 2)}</pre>
+
+        <h4>AI Tutorial Plan</h4>
+        <pre>${JSON.stringify(data.ai_tutorial_plan, null, 2)}</pre>
+    `;
+    });
+</script>
